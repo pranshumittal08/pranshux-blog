@@ -1,0 +1,68 @@
+baseURL = 'https://pranshumittal08.github.io/pranshux-blog'
+languageCode = 'en-us'
+title = 'PranshuxBlog - Knowledge Hub'
+theme = 'PaperMod'
+
+# Enable syntax highlighting
+pygmentsUseClasses = true
+pygmentsCodeFences = true
+
+[params]
+  # Blog info
+  author = "Pranshu Mittal"
+  description = "My personal notebook"
+  
+  # Theme settings
+  ShowReadingTime = true
+  ShowShareButtons = true
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  ShowWordCount = true
+  ShowToc = true
+  
+  # Social links
+  [[params.socialIcons]]
+    name = "github"
+    url = "https://github.com/pranshumittal08"
+  
+  [[params.socialIcons]]
+    name = "linkedin"
+    url = "https://linkedin.com/in/yourprofile"
+
+# Menu
+[[menu.main]]
+  identifier = "home"
+  name = "Home"
+  url = "/"
+  weight = 10
+
+[[menu.main]]
+  identifier = "posts"
+  name = "Tutorials"
+  url = "/posts/"
+  weight = 20
+
+[[menu.main]]
+  identifier = "tags"
+  name = "Tags"
+  url = "/tags/"
+  weight = 30
+
+[[menu.main]]
+  identifier = "about"
+  name = "About"
+  url = "/about/"
+  weight = 40
+
+# Markup settings for better code highlighting
+[markup]
+  [markup.highlight]
+    style = "github"
+    lineNos = true
+    lineNumbersInTable = false
+    tabWidth = 4
+    
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true  # Allows HTML in markdown
