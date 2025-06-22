@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/pranshux-blog/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=pranshux-blog/livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Deep Dive into Image Histogram Equalization | PranshuxBlog - Knowledge Hub</title>
+<meta name="keywords" content="opencv, computer-vision, beginner, image-processing">
+<meta name="description" content="Learn all about histogram equalization and its variants in image processing to solve real-world problems in vision.">
+<meta name="author" content="Pranshu Mittal">
+<link rel="canonical" href="http://localhost:1313/pranshux-blog/posts/histogram_eq/">
+<link crossorigin="anonymous" href="/pranshux-blog/assets/css/stylesheet.8fe10233a706bc87f2e08b3cf97b8bd4c0a80f10675a143675d59212121037c0.css" integrity="sha256-j&#43;ECM6cGvIfy4Is8&#43;XuL1MCoDxBnWhQ2ddWSEhIQN8A=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/pranshux-blog/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/pranshux-blog/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/pranshux-blog/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/pranshux-blog/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/pranshux-blog/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/pranshux-blog/posts/histogram_eq/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/pranshux-blog/" accesskey="h" title="PranshuxBlog - Knowledge Hub (Alt + H)">PranshuxBlog - Knowledge Hub</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/pranshux-blog/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/pranshux-blog/posts/" title="Tutorials">
+                    <span>Tutorials</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/pranshux-blog/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/pranshux-blog/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://localhost:1313/pranshux-blog/">Home</a>&nbsp;»&nbsp;<a href="http://localhost:1313/pranshux-blog/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Deep Dive into Image Histogram Equalization
+    </h1>
+    <div class="post-description">
+      Learn all about histogram equalization and its variants in image processing to solve real-world problems in vision.
+    </div>
+    <div class="post-meta"><span title='2025-06-22 21:07:17 +0530 IST'>June 22, 2025</span>&nbsp;·&nbsp;8 min&nbsp;·&nbsp;1527 words&nbsp;·&nbsp;Pranshu Mittal
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul><ul>
+                <li>
+                    <a href="#what-is-a-histogram" aria-label="What is a Histogram?">What is a Histogram?</a><ul>
+                        
+                <li>
+                    <a href="#the-problem-histogram-equalization-solves" aria-label="The Problem Histogram Equalization solves">The Problem Histogram Equalization solves</a></li></ul>
+                </li>
+                <li>
+                    <a href="#global-histogram-equalization" aria-label="Global Histogram Equalization">Global Histogram Equalization</a><ul>
+                        <ul>
+                        
+                <li>
+                    <a href="#advantages" aria-label="Advantages:">Advantages:</a></li>
+                <li>
+                    <a href="#disadvantages" aria-label="Disadvantages:">Disadvantages:</a></li>
+                <li>
+                    <a href="#choose-global-he-when" aria-label="Choose Global HE when:">Choose Global HE when:</a></li></ul>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#local-histogram-equalization" aria-label="Local Histogram Equalization">Local Histogram Equalization</a><ul>
+                        <ul>
+                        
+                <li>
+                    <a href="#process" aria-label="Process:">Process:</a></li>
+                <li>
+                    <a href="#advantages-1" aria-label="Advantages:">Advantages:</a></li>
+                <li>
+                    <a href="#disadvantages-1" aria-label="Disadvantages:">Disadvantages:</a></li></ul>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#adaptive-histogram-equalization-ahe" aria-label="Adaptive Histogram Equalization (AHE)">Adaptive Histogram Equalization (AHE)</a><ul>
+                        <ul>
+                        
+                <li>
+                    <a href="#key-improvements" aria-label="Key improvements:">Key improvements:</a></li>
+                <li>
+                    <a href="#key-process" aria-label="Key Process">Key Process</a></li>
+                <li>
+                    <a href="#mathematical-formula" aria-label="Mathematical Formula">Mathematical Formula</a></li>
+                <li>
+                    <a href="#key-advantages-over-local-he" aria-label="Key Advantages Over Local HE">Key Advantages Over Local HE</a></li>
+                <li>
+                    <a href="#core-difference-from-local-he" aria-label="Core Difference from Local HE">Core Difference from Local HE</a></li>
+                <li>
+                    <a href="#limitations" aria-label="Limitations:">Limitations:</a></li>
+                <li>
+                    <a href="#choose-localahe-when" aria-label="Choose Local/AHE when:">Choose Local/AHE when:</a></li></ul>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#clahe-contrast-limited-adaptive-histogram-equalization" aria-label="CLAHE (Contrast Limited Adaptive Histogram Equalization)">CLAHE (Contrast Limited Adaptive Histogram Equalization)</a><ul>
+                        <ul>
+                        
+                <li>
+                    <a href="#process-1" aria-label="Process:">Process:</a></li>
+                <li>
+                    <a href="#example-of-histogram-clipping" aria-label="Example of Histogram Clipping">Example of Histogram Clipping</a></li>
+                <li>
+                    <a href="#why-this-works" aria-label="Why This Works">Why This Works</a></li>
+                <li>
+                    <a href="#parameters" aria-label="Parameters:">Parameters:</a></li>
+                <li>
+                    <a href="#advantages-2" aria-label="Advantages:">Advantages:</a></li>
+                <li>
+                    <a href="#choose-clahe-when" aria-label="Choose CLAHE when:">Choose CLAHE when:</a></li></ul>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#bi-histogram-equalization-bbhe" aria-label="Bi-Histogram Equalization (BBHE)">Bi-Histogram Equalization (BBHE)</a><ul>
+                        <ul>
+                        
+                <li>
+                    <a href="#process-2" aria-label="Process:">Process:</a></li>
+                <li>
+                    <a href="#variants" aria-label="Variants:">Variants:</a></li></ul>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#choose-bi-histogram-methods-when" aria-label="Choose Bi-Histogram methods when:">Choose Bi-Histogram methods when:</a></li>
+                <li>
+                    <a href="#weighted-histogram-equalization" aria-label="Weighted Histogram Equalization">Weighted Histogram Equalization</a></li>
+                <li>
+                    <a href="#color-image-histogram-equalization" aria-label="Color Image Histogram Equalization">Color Image Histogram Equalization</a></li>
+                <li>
+                    <a href="#choose-color-space-methods-when" aria-label="Choose Color Space methods when:">Choose Color Space methods when:</a></li>
+                <li>
+                    <a href="#-performance-vs-quality-matrix" aria-label="📊 Performance vs Quality Matrix">📊 Performance vs Quality Matrix</a></li>
+                <li>
+                    <a href="#-medical-imaging-applications" aria-label="🏥 Medical Imaging Applications">🏥 Medical Imaging Applications</a></li>
+                <li>
+                    <a href="#-consumer-applications" aria-label="📱 Consumer Applications">📱 Consumer Applications</a></li>
+                <li>
+                    <a href="#-scientificindustrial-applications" aria-label="🔬 Scientific/Industrial Applications">🔬 Scientific/Industrial Applications</a></li>
+                <li>
+                    <a href="#-media-and-entertainment" aria-label="🎬 Media and Entertainment">🎬 Media and Entertainment</a></li>
+                <li>
+                    <a href="#-security-and-surveillance" aria-label="🚨 Security and Surveillance">🚨 Security and Surveillance</a></li></ul>
+                    
+                <li>
+                    <a href="#-quick-decision-tree" aria-label="⚡ Quick Decision Tree">⚡ Quick Decision Tree</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h3 id="what-is-a-histogram"><strong>What is a Histogram?</strong><a hidden class="anchor" aria-hidden="true" href="#what-is-a-histogram">#</a></h3>
+<p>An image histogram is a graphical representation showing the distribution of pixel intensities in an image. For a grayscale image with intensity values ranging from 0 to 255, the histogram plots:</p>
+<ul>
+<li>X-axis: Intensity values (0-255)</li>
+<li>Y-axis: Number of pixels at each intensity level</li>
+</ul>
+<p>The histogram reveals important characteristics about an image:</p>
+<ul>
+<li>Dark images have histograms concentrated toward the left (low intensities)</li>
+<li>Bright images have histograms concentrated toward the right (high intensities)</li>
+<li>Low-contrast images have histograms concentrated in a narrow range</li>
+<li>High-contrast images have histograms spread across the full range</li>
+</ul>
+<h4 id="the-problem-histogram-equalization-solves"><strong>The Problem Histogram Equalization solves</strong><a hidden class="anchor" aria-hidden="true" href="#the-problem-histogram-equalization-solves">#</a></h4>
+<p>Many images suffer from poor contrast due to:</p>
+<ul>
+<li>Inadequate lighting conditions during capture</li>
+<li>Camera limitations</li>
+<li>Environmental factors (fog, haze, backlighting)</li>
+</ul>
+<p>These result in images where pixel intensities cluster in a narrow range, making details hard to distinguish. <strong>Histogram equalization</strong> addresses this by transforming the intensity distribution to utilize the full available range more effectively.</p>
+<p>The goal with histogram equalization is to find a transformation function T(r) that maps input intensities r to output intensities s, such that the output histogram is approximately <em>uniform (flat)</em>.</p>
+<h3 id="global-histogram-equalization"><strong>Global Histogram Equalization</strong><a hidden class="anchor" aria-hidden="true" href="#global-histogram-equalization">#</a></h3>
+<p>This technique is applied to the entire image uniformly irrespective of the difference in light intensities at different locations.</p>
+<h5 id="advantages"><strong>Advantages:</strong><a hidden class="anchor" aria-hidden="true" href="#advantages">#</a></h5>
+<ul>
+<li>Simple to implement</li>
+<li>Effective for images with uniform lighting</li>
+</ul>
+<h5 id="disadvantages"><strong>Disadvantages:</strong><a hidden class="anchor" aria-hidden="true" href="#disadvantages">#</a></h5>
+<ul>
+<li>Not suitable for images with varying local characteristics</li>
+<li>May wash out details in bright or dark areas</li>
+<li>Can cause over enhancement in some regions</li>
+</ul>
+<h5 id="choose-global-he-when"><strong>Choose Global HE when:</strong><a hidden class="anchor" aria-hidden="true" href="#choose-global-he-when">#</a></h5>
+<ul>
+<li>Speed is critical</li>
+<li>Simple, uniform scenes</li>
+<li>Limited computational resources</li>
+<li>Preprocessing for further analysis</li>
+</ul>
+<h3 id="local-histogram-equalization"><strong>Local Histogram Equalization</strong><a hidden class="anchor" aria-hidden="true" href="#local-histogram-equalization">#</a></h3>
+<p>Applies histogram equalization to small neighborhoods around each pixel. It tackles the limitation of GHE i.e. being unable to adapt to local contrast and preserves local details.</p>
+<h5 id="process"><strong>Process</strong>:<a hidden class="anchor" aria-hidden="true" href="#process">#</a></h5>
+<ol>
+<li>Define a window size (e.g., 5×5, 7×7)</li>
+<li>For each pixel, create a window around that pixel</li>
+<li>Calculate histogram and CDF for that neighborhood</li>
+<li>Transform the center pixel using the local CDF</li>
+<li>Move to the next pixel</li>
+</ol>
+<p><strong>Handle Boundaries:</strong> Use padding or truncated windows at image edges</p>
+<p><strong>Window size controls adaptation</strong>:</p>
+<ul>
+<li>Smaller windows = more local adaptation, more artifacts</li>
+<li>Larger windows = less local adaptation, smoother results</li>
+</ul>
+<h5 id="advantages-1"><strong>Advantages</strong>:<a hidden class="anchor" aria-hidden="true" href="#advantages-1">#</a></h5>
+<ul>
+<li>Preserves local details better</li>
+<li>Adapts to local image characteristics</li>
+<li>Better handling of varying illumination</li>
+</ul>
+<h5 id="disadvantages-1"><strong>Disadvantages</strong>:<a hidden class="anchor" aria-hidden="true" href="#disadvantages-1">#</a></h5>
+<ul>
+<li>Computationally expensive</li>
+<li>Can introduce artifacts at region boundaries</li>
+<li>May amplify noise</li>
+</ul>
+<h3 id="adaptive-histogram-equalization-ahe"><strong>Adaptive Histogram Equalization (AHE)</strong><a hidden class="anchor" aria-hidden="true" href="#adaptive-histogram-equalization-ahe">#</a></h3>
+<p>Similar to local histogram equalization but with refinements to handle computational complexity and artifacts.</p>
+<h5 id="key-improvements"><strong>Key improvements</strong>:<a hidden class="anchor" aria-hidden="true" href="#key-improvements">#</a></h5>
+<ul>
+<li>Efficient computation using interpolation</li>
+<li>Better boundary handling</li>
+<li>Noise reduction mechanisms</li>
+</ul>
+<h5 id="key-process"><strong>Key Process</strong><a hidden class="anchor" aria-hidden="true" href="#key-process">#</a></h5>
+<ol>
+<li>Divide image into non-overlapping tiles (e.g., 8×8 grid of rectangular regions)</li>
+<li>Calculate histogram and transformation function for each tile center</li>
+<li>For each pixel:
+<ul>
+<li>Identify the 4 nearest tile centers</li>
+<li>Use <strong>bilinear interpolation</strong> to blend the 4 transformation functions</li>
+<li>Apply the interpolated transformation to the pixel</li>
+</ul>
+</li>
+</ol>
+<h5 id="mathematical-formula"><strong>Mathematical Formula</strong><a hidden class="anchor" aria-hidden="true" href="#mathematical-formula">#</a></h5>
+<p>For pixel at position (x,y), find 4 nearest tile centers with transformations T₁, T₂, T₃, T₄:</p>
+<pre tabindex="0"><code>T_interpolated(x,y) = w₁×T₁ + w₂×T₂ + w₃×T₃ + w₄×T₄
+</code></pre><p>Where weights w₁, w₂, w₃, w₄ are based on distance to each tile center.</p>
+<h5 id="key-advantages-over-local-he"><strong>Key Advantages Over Local HE</strong><a hidden class="anchor" aria-hidden="true" href="#key-advantages-over-local-he">#</a></h5>
+<ul>
+<li><strong>Computational efficiency</strong>: Only calculate histograms for tile centers, not every pixel</li>
+<li><strong>Smoother results</strong>: Interpolation reduces boundary artifacts</li>
+<li><strong>Configurable adaptation</strong>: Tile size controls local vs global behavior</li>
+</ul>
+<h5 id="core-difference-from-local-he"><strong>Core Difference from Local HE</strong><a hidden class="anchor" aria-hidden="true" href="#core-difference-from-local-he">#</a></h5>
+<ul>
+<li><strong>Local HE</strong>: Each pixel uses its immediate neighborhood</li>
+<li><strong>AHE</strong>: Each pixel uses interpolated transformations from nearby tile centers</li>
+</ul>
+<h5 id="limitations"><strong>Limitations:</strong><a hidden class="anchor" aria-hidden="true" href="#limitations">#</a></h5>
+<ul>
+<li><strong>Noise amplification</strong> - Enhances noise along with actual image features since there is no built-in mechanism to distinguish noise from signal. Particularly problematic in smooth regions (like sky and uniform backgrounds)</li>
+<li><strong>Over enhancement</strong> - May result in harsh, unnatural appearance as it can create unnaturally high contrast in some regions.</li>
+<li><strong>Tile Size Dependency</strong> - Small tiles may cause more noise amplification, potential blocking artifacts and large tiles may cause less local adaptation. There is no automatic method to determine optimal tile size.</li>
+</ul>
+<p>The interpolation makes AHE much faster while maintaining most of the local adaptation benefits.</p>
+<h5 id="choose-localahe-when"><strong>Choose Local/AHE when:</strong><a hidden class="anchor" aria-hidden="true" href="#choose-localahe-when">#</a></h5>
+<ul>
+<li>Complex lighting conditions</li>
+<li>Computational resources available</li>
+<li>Research/analysis applications</li>
+<li>Maximum detail extraction needed</li>
+</ul>
+<h3 id="clahe-contrast-limited-adaptive-histogram-equalization"><strong>CLAHE (Contrast Limited Adaptive Histogram Equalization)</strong><a hidden class="anchor" aria-hidden="true" href="#clahe-contrast-limited-adaptive-histogram-equalization">#</a></h3>
+<p>CLAHE was developed to address the main limitations of AHE - over-amplification of noise and artifacts, and over enhancement.</p>
+<h5 id="process-1"><strong>Process</strong>:<a hidden class="anchor" aria-hidden="true" href="#process-1">#</a></h5>
+<ol>
+<li>Divide image into non-overlapping contextual regions (tiles)</li>
+<li>Calculate histogram for each tile</li>
+<li><strong>Clip the histogram</strong>: Limit the height of histogram bins to a threshold</li>
+<li>Redistribute clipped pixels uniformly across all bins</li>
+<li>Apply histogram equalization to each tile</li>
+<li>Use bilinear interpolation to eliminate boundary artifacts</li>
+</ol>
+<h5 id="example-of-histogram-clipping">Example of Histogram Clipping<a hidden class="anchor" aria-hidden="true" href="#example-of-histogram-clipping">#</a></h5>
+<p><strong>Step 1: Clip the Histogram</strong></p>
+<p>Set clip limit = 300. Any bin exceeding this gets &ldquo;clipped&rdquo;:</p>
+<pre tabindex="0"><code>After clipping:
+Intensity:  50   100   150   200   250
+Count:      10   300   300    50    40
+                  ↓     ↓
+            Clipped  Clipped
+
+Excess pixels: 200 + 500 = 700 pixels total
+              (500-300) + (800-300)
+</code></pre><p><strong>Step 2: Redistribute Excess Pixels</strong></p>
+<p>The 700 &ldquo;clipped&rdquo; pixels get <strong>evenly distributed</strong> across <strong>all</strong> histogram bins:</p>
+<pre tabindex="0"><code>Redistribution per bin = 700 ÷ 5 bins = 140 pixels per bin
+
+Final histogram:
+Intensity:  50   100   150   200   250
+Count:     150   440   440   190   180
+           ↑     ↑     ↑     ↑     ↑
+          +140  +140  +140  +140  +140
+</code></pre><h5 id="why-this-works"><strong>Why This Works</strong><a hidden class="anchor" aria-hidden="true" href="#why-this-works">#</a></h5>
+<ul>
+<li><strong>Prevents over-enhancement</strong>: No single intensity gets boosted too much</li>
+<li><strong>Preserves total pixel count</strong>: All original pixels are still accounted for</li>
+<li><strong>Creates more balanced distribution</strong>: Extreme peaks are flattened and spread out</li>
+</ul>
+<h5 id="parameters"><strong>Parameters</strong>:<a hidden class="anchor" aria-hidden="true" href="#parameters">#</a></h5>
+<ul>
+<li>Tile size: Smaller tiles provide more local adaptation</li>
+<li>Clip limit: Controls the amount of contrast enhancement</li>
+</ul>
+<h5 id="advantages-2"><strong>Advantages</strong>:<a hidden class="anchor" aria-hidden="true" href="#advantages-2">#</a></h5>
+<ul>
+<li>Prevents over-enhancement</li>
+<li>Reduces noise amplification</li>
+<li>Excellent for medical and scientific images</li>
+<li>Preserves local details while improving global contrast</li>
+</ul>
+<h5 id="choose-clahe-when"><strong>Choose CLAHE when:</strong><a hidden class="anchor" aria-hidden="true" href="#choose-clahe-when">#</a></h5>
+<ul>
+<li>Image quality is paramount</li>
+<li>Medical/scientific applications</li>
+<li>Noisy images</li>
+<li>Professional results needed</li>
+</ul>
+<h3 id="bi-histogram-equalization-bbhe"><strong>Bi-Histogram Equalization (BBHE)</strong><a hidden class="anchor" aria-hidden="true" href="#bi-histogram-equalization-bbhe">#</a></h3>
+<p>This technique preserves the mean brightness of the image better than global histogram equalization.</p>
+<h5 id="process-2"><strong>Process</strong>:<a hidden class="anchor" aria-hidden="true" href="#process-2">#</a></h5>
+<ol>
+<li>Calculate the mean intensity of the image</li>
+<li>Divide histogram into two parts at the mean</li>
+<li>Apply histogram equalization separately to each part</li>
+<li>Combine the results</li>
+</ol>
+<h5 id="variants"><strong>Variants</strong>:<a hidden class="anchor" aria-hidden="true" href="#variants">#</a></h5>
+<ul>
+<li><strong>DSIHE</strong> (Dualistic Sub-Image Histogram Equalization): Uses median instead of mean</li>
+<li><strong>MMBEBHE</strong> (Minimum Mean Brightness Error Bi-Histogram Equalization): Optimizes the separation point</li>
+</ul>
+<h3 id="choose-bi-histogram-methods-when"><strong>Choose Bi-Histogram methods when:</strong><a hidden class="anchor" aria-hidden="true" href="#choose-bi-histogram-methods-when">#</a></h3>
+<ul>
+<li>Natural appearance required</li>
+<li>Consumer applications</li>
+<li>Portrait/people photography</li>
+<li>Brightness preservation important</li>
+</ul>
+<h3 id="weighted-histogram-equalization"><strong>Weighted Histogram Equalization</strong><a hidden class="anchor" aria-hidden="true" href="#weighted-histogram-equalization">#</a></h3>
+<p>Assigns different weights to different intensity ranges based on their importance or desired enhancement level.</p>
+<h3 id="color-image-histogram-equalization"><strong>Color Image Histogram Equalization</strong><a hidden class="anchor" aria-hidden="true" href="#color-image-histogram-equalization">#</a></h3>
+<p>For color images, several approaches exist:</p>
+<p><strong>RGB Channel-wise</strong>: Apply histogram equalization to each R, G, B channel independently</p>
+<ul>
+<li>Simple but can cause color shifts</li>
+</ul>
+<p><strong>HSV/HSI Space</strong>: Convert to HSV, apply equalization only to the V (value/intensity) channel</p>
+<ul>
+<li>Preserves color information better</li>
+</ul>
+<p><strong>YUV/Lab Space</strong>: Apply equalization to the luminance channel only</p>
+<ul>
+<li>Industry standard for maintaining color fidelity</li>
+</ul>
+<h3 id="choose-color-space-methods-when"><strong>Choose Color Space methods when:</strong><a hidden class="anchor" aria-hidden="true" href="#choose-color-space-methods-when">#</a></h3>
+<ul>
+<li>Color accuracy critical</li>
+<li>Professional photography</li>
+<li>Print media</li>
+<li>Color-sensitive applications</li>
+</ul>
+<h3 id="-performance-vs-quality-matrix">📊 <strong>Performance vs Quality Matrix</strong><a hidden class="anchor" aria-hidden="true" href="#-performance-vs-quality-matrix">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Technique</th>
+          <th>Real-time Capability</th>
+          <th>Enhancement Quality</th>
+          <th>Noise Handling</th>
+          <th>Artifact Control</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Global HE</td>
+          <td>✅ Excellent</td>
+          <td>⚠️ Basic</td>
+          <td>❌ Poor</td>
+          <td>❌ Poor</td>
+      </tr>
+      <tr>
+          <td>Local HE</td>
+          <td>❌ Poor</td>
+          <td>✅ Excellent</td>
+          <td>❌ Poor</td>
+          <td>❌ Poor</td>
+      </tr>
+      <tr>
+          <td>AHE</td>
+          <td>⚠️ Moderate</td>
+          <td>✅ Excellent</td>
+          <td>⚠️ Moderate</td>
+          <td>⚠️ Moderate</td>
+      </tr>
+      <tr>
+          <td>CLAHE</td>
+          <td>✅ Good</td>
+          <td>✅ Excellent</td>
+          <td>✅ Excellent</td>
+          <td>✅ Excellent</td>
+      </tr>
+      <tr>
+          <td>BBHE/DSIHE</td>
+          <td>✅ Excellent</td>
+          <td>⚠️ Moderate</td>
+          <td>✅ Good</td>
+          <td>✅ Good</td>
+      </tr>
+      <tr>
+          <td>Weighted HE</td>
+          <td>⚠️ Moderate</td>
+          <td>✅ Customizable</td>
+          <td>⚠️ Depends on weights</td>
+          <td>⚠️ Depends on weights</td>
+      </tr>
+      <tr>
+          <td>Color Space</td>
+          <td>✅ Good</td>
+          <td>✅ Excellent</td>
+          <td>✅ Good</td>
+          <td>✅ Good</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="-medical-imaging-applications">🏥 <strong>Medical Imaging Applications</strong><a hidden class="anchor" aria-hidden="true" href="#-medical-imaging-applications">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Medical Modality</th>
+          <th>Recommended Technique</th>
+          <th>Why This Choice</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>X-Ray Imaging</strong></td>
+          <td>CLAHE</td>
+          <td>Noise control crucial, fine bone detail enhancement</td>
+      </tr>
+      <tr>
+          <td><strong>CT Scans</strong></td>
+          <td>CLAHE or AHE</td>
+          <td>Tissue contrast enhancement without artifacts</td>
+      </tr>
+      <tr>
+          <td><strong>MRI</strong></td>
+          <td>CLAHE</td>
+          <td>Soft tissue detail, noise suppression</td>
+      </tr>
+      <tr>
+          <td><strong>Ultrasound</strong></td>
+          <td>Local HE or CLAHE</td>
+          <td>Varying tissue echogenicity</td>
+      </tr>
+      <tr>
+          <td><strong>Mammography</strong></td>
+          <td>CLAHE</td>
+          <td>Critical detail detection, microcalcifications</td>
+      </tr>
+      <tr>
+          <td><strong>Fluoroscopy</strong></td>
+          <td>Global HE or CLAHE</td>
+          <td>Real-time requirements vs. quality</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="-consumer-applications">📱 <strong>Consumer Applications</strong><a hidden class="anchor" aria-hidden="true" href="#-consumer-applications">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Application Type</th>
+          <th>Recommended Technique</th>
+          <th>User Experience Priority</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Smartphone Camera</strong></td>
+          <td>BBHE/DSIHE</td>
+          <td>Natural appearance, fast processing</td>
+      </tr>
+      <tr>
+          <td><strong>Photo Editing Apps</strong></td>
+          <td>Color Space Methods</td>
+          <td>Professional results, color accuracy</td>
+      </tr>
+      <tr>
+          <td><strong>Social Media Filters</strong></td>
+          <td>Global HE or BBHE</td>
+          <td>Speed, instant results</td>
+      </tr>
+      <tr>
+          <td><strong>Video Calls</strong></td>
+          <td>Global HE</td>
+          <td>Real-time performance</td>
+      </tr>
+      <tr>
+          <td><strong>Game Enhancement</strong></td>
+          <td>CLAHE or Local HE</td>
+          <td>Visual quality, atmospheric effects</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="-scientificindustrial-applications">🔬 <strong>Scientific/Industrial Applications</strong><a hidden class="anchor" aria-hidden="true" href="#-scientificindustrial-applications">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Field</th>
+          <th>Recommended Technique</th>
+          <th>Critical Requirements</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Microscopy</strong></td>
+          <td>CLAHE or AHE</td>
+          <td>Fine detail, noise control</td>
+      </tr>
+      <tr>
+          <td><strong>Astronomy</strong></td>
+          <td>Local HE or CLAHE</td>
+          <td>Faint object enhancement</td>
+      </tr>
+      <tr>
+          <td><strong>Satellite Imaging</strong></td>
+          <td>CLAHE</td>
+          <td>Large dynamic range, detail preservation</td>
+      </tr>
+      <tr>
+          <td><strong>Quality Control</strong></td>
+          <td>Global HE or CLAHE</td>
+          <td>Defect detection, consistency</td>
+      </tr>
+      <tr>
+          <td><strong>Forensics</strong></td>
+          <td>CLAHE</td>
+          <td>Evidence enhancement, authenticity</td>
+      </tr>
+      <tr>
+          <td><strong>Materials Science</strong></td>
+          <td>AHE or CLAHE</td>
+          <td>Structural analysis, grain boundaries</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="-media-and-entertainment">🎬 <strong>Media and Entertainment</strong><a hidden class="anchor" aria-hidden="true" href="#-media-and-entertainment">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Application</th>
+          <th>Recommended Technique</th>
+          <th>Key Considerations</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Film Restoration</strong></td>
+          <td>CLAHE</td>
+          <td>Artifact control, historical accuracy</td>
+      </tr>
+      <tr>
+          <td><strong>Video Games</strong></td>
+          <td>Global HE</td>
+          <td>Real-time performance</td>
+      </tr>
+      <tr>
+          <td><strong>Broadcast TV</strong></td>
+          <td>BBHE/Color Space</td>
+          <td>Natural appearance, color standards</td>
+      </tr>
+      <tr>
+          <td><strong>Streaming Video</strong></td>
+          <td>Global HE</td>
+          <td>Bandwidth, processing efficiency</td>
+      </tr>
+      <tr>
+          <td><strong>Digital Art</strong></td>
+          <td>Weighted HE</td>
+          <td>Creative control, artistic vision</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="-security-and-surveillance">🚨 <strong>Security and Surveillance</strong><a hidden class="anchor" aria-hidden="true" href="#-security-and-surveillance">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Scenario</th>
+          <th>Recommended Technique</th>
+          <th>Operational Needs</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Night Vision</strong></td>
+          <td>CLAHE or Local HE</td>
+          <td>Low-light enhancement</td>
+      </tr>
+      <tr>
+          <td><strong>Traffic Monitoring</strong></td>
+          <td>Global HE</td>
+          <td>License plate readability</td>
+      </tr>
+      <tr>
+          <td><strong>Facial Recognition</strong></td>
+          <td>BBHE or Color Space</td>
+          <td>Natural appearance, accuracy</td>
+      </tr>
+      <tr>
+          <td><strong>Crowd Surveillance</strong></td>
+          <td>Global HE</td>
+          <td>Real-time processing</td>
+      </tr>
+      <tr>
+          <td><strong>Forensic Analysis</strong></td>
+          <td>CLAHE</td>
+          <td>Evidence quality, detail extraction</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="-quick-decision-tree">⚡ <strong>Quick Decision Tree</strong><a hidden class="anchor" aria-hidden="true" href="#-quick-decision-tree">#</a></h2>
+<ol>
+<li><strong>Is it a color image?</strong> → Yes: Color Space Methods</li>
+<li><strong>Is real-time performance critical?</strong> → Yes: Global HE or BBHE</li>
+<li><strong>Is it a medical/scientific image?</strong> → Yes: CLAHE</li>
+<li><strong>Are there varying lighting conditions?</strong> → Yes: Local HE or CLAHE</li>
+<li><strong>Is natural appearance important?</strong> → Yes: BBHE/DSIHE</li>
+<li><strong>Is it a simple, uniform scene?</strong> → Yes: Global HE</li>
+<li><strong>Need maximum control?</strong> → Yes: Weighted HE</li>
+</ol>
+<p>This comparison should help you select the most appropriate histogram equalization technique based on your specific application requirements, computational constraints, and quality expectations.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/pranshux-blog/tags/opencv/">Opencv</a></li>
+      <li><a href="http://localhost:1313/pranshux-blog/tags/computer-vision/">Computer-Vision</a></li>
+      <li><a href="http://localhost:1313/pranshux-blog/tags/beginner/">Beginner</a></li>
+      <li><a href="http://localhost:1313/pranshux-blog/tags/image-processing/">Image-Processing</a></li>
+    </ul>
+
+
+<ul class="share-buttons">
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Deep Dive into Image Histogram Equalization on x"
+            href="https://x.com/intent/tweet/?text=Deep%20Dive%20into%20Image%20Histogram%20Equalization&amp;url=http%3a%2f%2flocalhost%3a1313%2fpranshux-blog%2fposts%2fhistogram_eq%2f&amp;hashtags=opencv%2ccomputer-vision%2cbeginner%2cimage-processing">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M512 62.554 L 512 449.446 C 512 483.97 483.97 512 449.446 512 L 62.554 512 C 28.03 512 0 483.97 0 449.446 L 0 62.554 C 0 28.03 28.029 0 62.554 0 L 449.446 0 C 483.971 0 512 28.03 512 62.554 Z M 269.951 190.75 L 182.567 75.216 L 56 75.216 L 207.216 272.95 L 63.9 436.783 L 125.266 436.783 L 235.9 310.383 L 332.567 436.783 L 456 436.783 L 298.367 228.367 L 432.367 75.216 L 371.033 75.216 Z M 127.633 110 L 164.101 110 L 383.481 400.065 L 349.5 400.065 Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Deep Dive into Image Histogram Equalization on linkedin"
+            href="https://www.linkedin.com/shareArticle?mini=true&amp;url=http%3a%2f%2flocalhost%3a1313%2fpranshux-blog%2fposts%2fhistogram_eq%2f&amp;title=Deep%20Dive%20into%20Image%20Histogram%20Equalization&amp;summary=Deep%20Dive%20into%20Image%20Histogram%20Equalization&amp;source=http%3a%2f%2flocalhost%3a1313%2fpranshux-blog%2fposts%2fhistogram_eq%2f">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-288.985,423.278l0,-225.717l-75.04,0l0,225.717l75.04,0Zm270.539,0l0,-129.439c0,-69.333 -37.018,-101.586 -86.381,-101.586c-39.804,0 -57.634,21.891 -67.617,37.266l0,-31.958l-75.021,0c0.995,21.181 0,225.717 0,225.717l75.02,0l0,-126.056c0,-6.748 0.486,-13.492 2.474,-18.315c5.414,-13.475 17.767,-27.434 38.494,-27.434c27.135,0 38.007,20.707 38.007,51.037l0,120.768l75.024,0Zm-307.552,-334.556c-25.674,0 -42.448,16.879 -42.448,39.002c0,21.658 16.264,39.002 41.455,39.002l0.484,0c26.165,0 42.452,-17.344 42.452,-39.002c-0.485,-22.092 -16.241,-38.954 -41.943,-39.002Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Deep Dive into Image Histogram Equalization on reddit"
+            href="https://reddit.com/submit?url=http%3a%2f%2flocalhost%3a1313%2fpranshux-blog%2fposts%2fhistogram_eq%2f&title=Deep%20Dive%20into%20Image%20Histogram%20Equalization">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-3.446,265.638c0,-22.964 -18.616,-41.58 -41.58,-41.58c-11.211,0 -21.361,4.457 -28.841,11.666c-28.424,-20.508 -67.586,-33.757 -111.204,-35.278l18.941,-89.121l61.884,13.157c0.756,15.734 13.642,28.29 29.56,28.29c16.407,0 29.706,-13.299 29.706,-29.701c0,-16.403 -13.299,-29.702 -29.706,-29.702c-11.666,0 -21.657,6.792 -26.515,16.578l-69.105,-14.69c-1.922,-0.418 -3.939,-0.042 -5.585,1.036c-1.658,1.073 -2.811,2.761 -3.224,4.686l-21.152,99.438c-44.258,1.228 -84.046,14.494 -112.837,35.232c-7.468,-7.164 -17.589,-11.591 -28.757,-11.591c-22.965,0 -41.585,18.616 -41.585,41.58c0,16.896 10.095,31.41 24.568,37.918c-0.639,4.135 -0.99,8.328 -0.99,12.576c0,63.977 74.469,115.836 166.33,115.836c91.861,0 166.334,-51.859 166.334,-115.836c0,-4.218 -0.347,-8.387 -0.977,-12.493c14.564,-6.47 24.735,-21.034 24.735,-38.001Zm-119.474,108.193c-20.27,20.241 -59.115,21.816 -70.534,21.816c-11.428,0 -50.277,-1.575 -70.522,-21.82c-3.007,-3.008 -3.007,-7.882 0,-10.889c3.003,-2.999 7.882,-3.003 10.885,0c12.777,12.781 40.11,17.317 59.637,17.317c19.522,0 46.86,-4.536 59.657,-17.321c3.016,-2.999 7.886,-2.995 10.885,0.008c3.008,3.011 3.003,7.882 -0.008,10.889Zm-5.23,-48.781c-16.373,0 -29.701,-13.324 -29.701,-29.698c0,-16.381 13.328,-29.714 29.701,-29.714c16.378,0 29.706,13.333 29.706,29.714c0,16.374 -13.328,29.698 -29.706,29.698Zm-160.386,-29.702c0,-16.381 13.328,-29.71 29.714,-29.71c16.369,0 29.689,13.329 29.689,29.71c0,16.373 -13.32,29.693 -29.689,29.693c-16.386,0 -29.714,-13.32 -29.714,-29.693Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Deep Dive into Image Histogram Equalization on facebook"
+            href="https://facebook.com/sharer/sharer.php?u=http%3a%2f%2flocalhost%3a1313%2fpranshux-blog%2fposts%2fhistogram_eq%2f">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-106.468,0l0,-192.915l66.6,0l12.672,-82.621l-79.272,0l0,-53.617c0,-22.603 11.073,-44.636 46.58,-44.636l36.042,0l0,-70.34c0,0 -32.71,-5.582 -63.982,-5.582c-65.288,0 -107.96,39.569 -107.96,111.204l0,62.971l-72.573,0l0,82.621l72.573,0l0,192.915l-191.104,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Deep Dive into Image Histogram Equalization on whatsapp"
+            href="https://api.whatsapp.com/send?text=Deep%20Dive%20into%20Image%20Histogram%20Equalization%20-%20http%3a%2f%2flocalhost%3a1313%2fpranshux-blog%2fposts%2fhistogram_eq%2f">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-58.673,127.703c-33.842,-33.881 -78.847,-52.548 -126.798,-52.568c-98.799,0 -179.21,80.405 -179.249,179.234c-0.013,31.593 8.241,62.428 23.927,89.612l-25.429,92.884l95.021,-24.925c26.181,14.28 55.659,21.807 85.658,21.816l0.074,0c98.789,0 179.206,-80.413 179.247,-179.243c0.018,-47.895 -18.61,-92.93 -52.451,-126.81Zm-126.797,275.782l-0.06,0c-26.734,-0.01 -52.954,-7.193 -75.828,-20.767l-5.441,-3.229l-56.386,14.792l15.05,-54.977l-3.542,-5.637c-14.913,-23.72 -22.791,-51.136 -22.779,-79.287c0.033,-82.142 66.867,-148.971 149.046,-148.971c39.793,0.014 77.199,15.531 105.329,43.692c28.128,28.16 43.609,65.592 43.594,105.4c-0.034,82.149 -66.866,148.983 -148.983,148.984Zm81.721,-111.581c-4.479,-2.242 -26.499,-13.075 -30.604,-14.571c-4.105,-1.495 -7.091,-2.241 -10.077,2.241c-2.986,4.483 -11.569,14.572 -14.182,17.562c-2.612,2.988 -5.225,3.364 -9.703,1.12c-4.479,-2.241 -18.91,-6.97 -36.017,-22.23c-13.314,-11.876 -22.304,-26.542 -24.916,-31.026c-2.612,-4.484 -0.279,-6.908 1.963,-9.14c2.016,-2.007 4.48,-5.232 6.719,-7.847c2.24,-2.615 2.986,-4.484 4.479,-7.472c1.493,-2.99 0.747,-5.604 -0.374,-7.846c-1.119,-2.241 -10.077,-24.288 -13.809,-33.256c-3.635,-8.733 -7.327,-7.55 -10.077,-7.688c-2.609,-0.13 -5.598,-0.158 -8.583,-0.158c-2.986,0 -7.839,1.121 -11.944,5.604c-4.105,4.484 -15.675,15.32 -15.675,37.364c0,22.046 16.048,43.342 18.287,46.332c2.24,2.99 31.582,48.227 76.511,67.627c10.685,4.615 19.028,7.371 25.533,9.434c10.728,3.41 20.492,2.929 28.209,1.775c8.605,-1.285 26.499,-10.833 30.231,-21.295c3.732,-10.464 3.732,-19.431 2.612,-21.298c-1.119,-1.869 -4.105,-2.99 -8.583,-5.232Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Deep Dive into Image Histogram Equalization on telegram"
+            href="https://telegram.me/share/url?text=Deep%20Dive%20into%20Image%20Histogram%20Equalization&amp;url=http%3a%2f%2flocalhost%3a1313%2fpranshux-blog%2fposts%2fhistogram_eq%2f">
+            <svg version="1.1" xml:space="preserve" viewBox="2 2 28 28" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M26.49,29.86H5.5a3.37,3.37,0,0,1-2.47-1,3.35,3.35,0,0,1-1-2.47V5.48A3.36,3.36,0,0,1,3,3,3.37,3.37,0,0,1,5.5,2h21A3.38,3.38,0,0,1,29,3a3.36,3.36,0,0,1,1,2.46V26.37a3.35,3.35,0,0,1-1,2.47A3.38,3.38,0,0,1,26.49,29.86Zm-5.38-6.71a.79.79,0,0,0,.85-.66L24.73,9.24a.55.55,0,0,0-.18-.46.62.62,0,0,0-.41-.17q-.08,0-16.53,6.11a.59.59,0,0,0-.41.59.57.57,0,0,0,.43.52l4,1.24,1.61,4.83a.62.62,0,0,0,.63.43.56.56,0,0,0,.4-.17L16.54,20l4.09,3A.9.9,0,0,0,21.11,23.15ZM13.8,20.71l-1.21-4q8.72-5.55,8.78-5.55c.15,0,.23,0,.23.16a.18.18,0,0,1,0,.06s-2.51,2.3-7.52,6.8Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Deep Dive into Image Histogram Equalization on ycombinator"
+            href="https://news.ycombinator.com/submitlink?t=Deep%20Dive%20into%20Image%20Histogram%20Equalization&u=http%3a%2f%2flocalhost%3a1313%2fpranshux-blog%2fposts%2fhistogram_eq%2f">
+            <svg version="1.1" xml:space="preserve" width="30px" height="30px" viewBox="0 0 512 512" fill="currentColor"
+                xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
+                <path
+                    d="M449.446 0C483.971 0 512 28.03 512 62.554L512 449.446C512 483.97 483.97 512 449.446 512L62.554 512C28.03 512 0 483.97 0 449.446L0 62.554C0 28.03 28.029 0 62.554 0L449.446 0ZM183.8767 87.9921H121.8427L230.6673 292.4508V424.0079H281.3328V292.4508L390.1575 87.9921H328.1233L256 238.2489z" />
+            </svg>
+        </a>
+    </li>
+</ul>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="http://localhost:1313/pranshux-blog/">PranshuxBlog - Knowledge Hub</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

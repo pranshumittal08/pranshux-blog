@@ -2,14 +2,37 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:1313/pranshux-blog/about/</loc>
-    <lastmod>2025-06-22T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/pranshux-blog/</loc>
-    <lastmod>2025-06-22T00:00:00+00:00</lastmod>
+    <loc>http://localhost:1313/pranshux-blog/tags/beginner/</loc>
+    <lastmod>2025-06-22T21:07:17+05:30</lastmod>
   </url><url>
     <loc>http://localhost:1313/pranshux-blog/categories/</loc>
+    <lastmod>2025-06-22T21:07:17+05:30</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/pranshux-blog/tags/computer-vision/</loc>
+    <lastmod>2025-06-22T21:07:17+05:30</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/pranshux-blog/posts/histogram_eq/</loc>
+    <lastmod>2025-06-22T21:07:17+05:30</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/pranshux-blog/tags/image-processing/</loc>
+    <lastmod>2025-06-22T21:07:17+05:30</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/pranshux-blog/tags/opencv/</loc>
+    <lastmod>2025-06-22T21:07:17+05:30</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/pranshux-blog/posts/</loc>
+    <lastmod>2025-06-22T21:07:17+05:30</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/pranshux-blog/</loc>
+    <lastmod>2025-06-22T21:07:17+05:30</lastmod>
   </url><url>
     <loc>http://localhost:1313/pranshux-blog/tags/</loc>
+    <lastmod>2025-06-22T21:07:17+05:30</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/pranshux-blog/categories/tutorials/</loc>
+    <lastmod>2025-06-22T21:07:17+05:30</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/pranshux-blog/about/</loc>
+    <lastmod>2025-06-22T00:00:00+00:00</lastmod>
   </url>
 </urlset>

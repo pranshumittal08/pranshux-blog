@@ -1,17 +1,11 @@
----
-title: "Deep Dive into Image Histogram Equalization"
-date: 2025-06-22T10:00:00+00:00
-draft: false
-tags: ["opencv", "computer-vision", "beginner", "image-processing"]
-categories: ["tutorials"]
-description: "Learn all about histogram equalization and its variants in image processing to solve real-world problems in vision."
-cover:
-    image: ""
-    alt: "Image histogram equalization"
-    caption: "Solving real-world problems using Histogram Equalization"
----
-
-
++++
+title = "Deep Dive into Image Histogram Equalization"
+date = 2025-06-22T21:07:17+05:30
+draft = false
+tags= ["opencv", "computer-vision", "beginner", "image-processing"]
+categories= ["tutorials"]
+description= "Learn all about histogram equalization and its variants in image processing to solve real-world problems in vision."
++++
 
 ### **What is a Histogram?**
 
@@ -224,6 +218,14 @@ This technique preserves the mean brightness of the image better than global his
 - **DSIHE** (Dualistic Sub-Image Histogram Equalization): Uses median instead of mean
 - **MMBEBHE** (Minimum Mean Brightness Error Bi-Histogram Equalization): Optimizes the separation point
 
+
+### **Choose Bi-Histogram methods when:**
+
+- Natural appearance required
+- Consumer applications
+- Portrait/people photography
+- Brightness preservation important
+
 ### **Weighted Histogram Equalization**
 
 Assigns different weights to different intensity ranges based on their importance or desired enhancement level.
@@ -243,6 +245,14 @@ For color images, several approaches exist:
 **YUV/Lab Space**: Apply equalization to the luminance channel only
 
 - Industry standard for maintaining color fidelity
+
+
+### **Choose Color Space methods when:**
+
+- Color accuracy critical
+- Professional photography
+- Print media
+- Color-sensitive applications
 
 
 ### 📊 **Performance vs Quality Matrix**
@@ -308,30 +318,6 @@ For color images, several approaches exist:
 |**Facial Recognition**|BBHE or Color Space|Natural appearance, accuracy|
 |**Crowd Surveillance**|Global HE|Real-time processing|
 |**Forensic Analysis**|CLAHE|Evidence quality, detail extraction|
-
-## 🎯 **Selection Guidelines**
-
-### **Choose Global HE when:**
-
-- Speed is critical
-- Simple, uniform scenes
-- Limited computational resources
-- Preprocessing for further analysis
-
-
-### **Choose Bi-Histogram methods when:**
-
-- Natural appearance required
-- Consumer applications
-- Portrait/people photography
-- Brightness preservation important
-
-### **Choose Color Space methods when:**
-
-- Color accuracy critical
-- Professional photography
-- Print media
-- Color-sensitive applications
 
 ## ⚡ **Quick Decision Tree**
 
