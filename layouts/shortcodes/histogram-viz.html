@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histogram Equalization Visualization</title>
+    <style>
+        .histogram-viz {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 100%;
+            margin: 2rem 0;
+            background: var(--theme, #fff);
+            border: 1px solid var(--border, #e5e7eb);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .histogram-viz * {
+            box-sizing: border-box;
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .histogram-viz {
+                background: var(--theme, #1f2937);
+                border-color: var(--border, #374151);
+                color: var(--primary, #f9fafb);
+            }
+        }
+
+        .viz-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+            max-width: 45%;
+        }
+
+        .chart-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--primary, #374151);
+            text-align: center;
+        }
+
+        .chart {
+            width: 100%;
+            max-width: 300px;
+            height: 160px;
+            position: relative;
+            background: var(--code-bg, #f8fafc);
+            border: 1px solid var(--border, #e5e7eb);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .chart {
+                background: var(--code-bg, #111827);
+                border-color: var(--border, #374151);
+            }
+        }
+
+        .histogram-bars {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            display: flex;
+            align-items: flex-end;
+            padding: 4px;
+        }
+
+        .bar {
+            flex: 1;
+            margin: 0 0.5px;
+            border-radius: 1px 1px 0 0;
+            transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 2px;
+        }
+
+        .original-bar {
+            background: #ef4444;
+            opacity: 0.8;
+        }
+
+        .equalized-bar {
+            background: #10b981;
+            opacity: 0.8;
+        }
+
+        .transform-arrow {
+            font-size: 1.8rem;
+            color: var(--secondary, #6b7280);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            flex-shrink: 0;
+            margin-top: 1.5rem;
+            min-width: 60px;
+        }
+
+        .transform-label {
+            font-size: 1.1rem;
+            font-style: italic;
+            font-weight: 500;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .control-btn {
+            padding: 0.5rem 1rem;
+            background: var(--theme, #fff);
+            border: 1px solid var(--border, #d1d5db);
+            border-radius: 6px;
+            color: var(--primary, #374151);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .control-btn:hover {
+            background: var(--tertiary, #f3f4f6);
+            border-color: var(--secondary, #9ca3af);
+        }
+
+        .control-btn:active {
+            transform: translateY(1px);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .control-btn {
+                background: var(--theme, #374151);
+                border-color: var(--border, #4b5563);
+                color: var(--primary, #f9fafb);
+            }
+            
+            .control-btn:hover {
+                background: var(--tertiary, #4b5563);
+                border-color: var(--secondary, #6b7280);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .viz-container {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            .chart-container {
+                max-width: 100%;
+            }
+            
+            .transform-arrow {
+                transform: rotate(90deg);
+            }
+            
+            .chart {
+                max-width: 240px;
+                height: 140px;
+            }
+            
+            .controls {
+                gap: 0.25rem;
+            }
+            
+            .control-btn {
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .histogram-viz {
+                padding: 1rem;
+                margin: 1rem 0;
+            }
+            
+            .chart {
+                max-width: 200px;
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="histogram-viz">
+        <div class="viz-container">
+            <div class="chart-container">
+                <div class="chart-title">Original Distribution</div>
+                <div class="chart">
+                    <div class="histogram-bars" id="originalBars"></div>
+                </div>
+            </div>
+            
+            <div class="transform-arrow">
+                <div>→</div>
+                <div class="transform-label">T</div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">Equalized Distribution</div>
+                <div class="chart">
+                    <div class="histogram-bars" id="equalizedBars"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="control-btn" onclick="simulateUnderexposed()">Underexposed</button>
+            <button class="control-btn" onclick="simulateOverexposed()">Overexposed</button>
+            <button class="control-btn" onclick="simulateLowContrast()">Low Contrast</button>
+            <button class="control-btn" onclick="simulateNormal()">Normal</button>
+        </div>
+    </div>
+
+    <script>
+        const numBars = 40;
+
+        function createBars(containerId, className) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            for (let i = 0; i < numBars; i++) {
+                const bar = document.createElement('div');
+                bar.className = `bar ${className}`;
+                bar.style.height = '2px';
+                container.appendChild(bar);
+            }
+        }
+
+        function updateHistogram(containerId, distribution) {
+            const container = document.getElementById(containerId);
+            const isOriginal = containerId === 'originalBars';
+            
+            // Completely clear and recreate bars to eliminate any residuals
+            container.innerHTML = '';
+            
+            // Recreate bars
+            for (let i = 0; i < numBars; i++) {
+                const bar = document.createElement('div');
+                bar.className = `bar ${isOriginal ? 'original-bar' : 'equalized-bar'}`;
+                bar.style.height = '2px';
+                container.appendChild(bar);
+            }
+            
+            // Animate to new heights after a brief delay
+            setTimeout(() => {
+                const bars = container.children;
+                for (let i = 0; i < bars.length; i++) {
+                    const height = distribution[i] || 2;
+                    setTimeout(() => {
+                        bars[i].style.height = `${height}%`;
+                    }, i * 8);
+                }
+            }, 5);
+        }
+
+        function generateGaussian(mean, std, amplitude) {
+            const distribution = new Array(numBars).fill(0);
+            
+            for (let i = 0; i < numBars; i++) {
+                const x = i / numBars;
+                const gaussian = amplitude * Math.exp(-0.5 * Math.pow((x - mean) / std, 2));
+                distribution[i] = Math.max(5, Math.min(85, gaussian));
+            }
+            console.log(distribution);
+            return distribution;
+        }
+
+        function generateUniform(amplitude) {
+            const distribution = new Array(numBars).fill(amplitude);
+            return distribution.map(val => val + (Math.random() - 0.5) * 8);
+        }
+
+        let isAnimating = false;
+
+        function simulateUnderexposed() {
+            if (isAnimating) return;
+            isAnimating = true;
+            
+            const original = generateGaussian(0.2, 0.15, 80);
+            const equalized = generateUniform(45);
+            
+            updateHistogram('originalBars', original);
+            setTimeout(() => {
+                updateHistogram('equalizedBars', equalized);
+                setTimeout(() => { isAnimating = false; }, 500);
+            }, 200);
+        }
+
+        function simulateOverexposed() {
+            if (isAnimating) return;
+            isAnimating = true;
+            
+            const original = generateGaussian(0.8, 0.15, 80);
+            const equalized = generateUniform(45);
+            
+            updateHistogram('originalBars', original);
+            setTimeout(() => {
+                updateHistogram('equalizedBars', equalized);
+                setTimeout(() => { isAnimating = false; }, 500);
+            }, 200);
+        }
+
+        function simulateLowContrast() {
+            if (isAnimating) return;
+            isAnimating = true;
+            
+            const original = generateGaussian(0.5, 0.1, 85);
+            const equalized = generateUniform(45);
+            
+            updateHistogram('originalBars', original);
+            setTimeout(() => {
+                updateHistogram('equalizedBars', equalized);
+                setTimeout(() => { isAnimating = false; }, 500);
+            }, 200);
+        }
+
+        function simulateNormal() {
+            if (isAnimating) return;
+            isAnimating = true;
+            
+            const original = generateGaussian(0.5, 0.20, 60);
+            const equalized = generateUniform(45);
+            
+            updateHistogram('originalBars', original);
+            setTimeout(() => {
+                updateHistogram('equalizedBars', equalized);
+                setTimeout(() => { isAnimating = false; }, 500);
+            }, 200);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            createBars('originalBars', 'original-bar');
+            createBars('equalizedBars', 'equalized-bar');
+            
+            setTimeout(() => {
+                simulateUnderexposed();
+            }, 200);
+        });
+    </script>
+</body>
+</html>
