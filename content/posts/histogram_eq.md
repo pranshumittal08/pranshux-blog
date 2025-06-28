@@ -8,6 +8,21 @@ description= "Learn all about histogram equalization and its variants in image p
 math = true
 +++
 
+<div style="display: flex; gap: 20px; margin: 20px 0;">
+  <figure style="flex: 1; margin: 0;">
+    <img src="images/side-lighting_0.png" alt="Original image">
+    <figcaption style="text-align: center;">Original</figcaption>
+  </figure>
+  <figure style="flex: 1; margin: 0;">
+    <img src="images/clahe_lighting.png" alt="After CLAHE">
+    <figcaption style="text-align: center;">After CLAHE</figcaption>
+  </figure>
+  <figure style="flex: 1; margin: 0;">
+    <img src="images/preview_image.png" alt="After GHE">
+    <figcaption style="text-align: center;">After GHE</figcaption>
+  </figure>
+</div>
+
 As computer vision engineers, we've all encountered that frustrating moment when our carefully trained model fails on real-world data that looks nothing like our pristine training set. A face detection system that works flawlessly in controlled lighting suddenly struggles with backlit portraits. An OCR pipeline that reads printed documents perfectly chokes on poorly scanned paperwork. A medical imaging classifier trained on high-contrast CT scans fails to generalize to images from different hospitals with varying acquisition protocols.
 
 The culprit? **Poor contrast and suboptimal intensity distribution.**
@@ -23,13 +38,16 @@ Digital images rarely utilize their full dynamic range effectively. Consider the
 
 Each of these conditions presents a challenge for computer vision algorithms that rely on consistent feature extraction and pattern recognition.
 
+
 ## Enter Histogram Equalization
 
 Histogram equalization tackles this problem at its core by transforming the image's intensity distribution to approximate a uniform distribution across the full available range. In simple words, we want to transform the image such that its brightness levels are **evenly spread*** across the full range from black (0) to white(255). The intuition is elegant: if we can spread pixel intensities more evenly across the entire spectrum, we maximize the information content and contrast in our image.
 
 {{< histogram-viz >}}
 
+
 *Now that your interest is peaked, let's explore the mathematical foundations and practical implementations of different histogram equalization techniques...*
+
 
 ## What is a Histogram?
 
@@ -44,9 +62,34 @@ The histogram reveals important characteristics about an image:
 - Bright images have histograms concentrated toward the right (high intensities)
 - Low-contrast images have histograms concentrated in a narrow range
 - High-contrast images have histograms spread across the full range
+
+
 ## Global Histogram Equalization
 
+<div style="display: flex; gap: 20px; margin: 20px 0;">
+  <figure style="flex: 1; margin: 0;">
+    {{< figure src="images/side-lighting_0.png" alt="Without GHE" caption="Before Global Histogram Equalization" width="100%" >}}
+  </figure>
+  <figure style="flex: 1; margin: 0;">
+    {{< figure src="images/preview_image.png" alt="With GHE" caption="After Global Histogram Equalization" width="100%" >}}
+  </figure>
+</div>
+
+<div style="display: flex; gap: 20px; margin: 20px 0 50px 0;">
+  <figure style="flex: 1; margin: 0; width: 300px; height: 150px;">
+    {{< figure src="images/original_hist.png" alt="Original image color histogram" width="100%" height="150px" >}}
+  </figure>
+  <figure style="flex: 1; margin: 0; width: 300px; height: 150px;">
+    {{< figure src="images/ghe_hist.png" alt="Color histogram after global histogram equalization" width="100%" height="150px" >}}
+  </figure>
+</div>
+<div>  
+<p style="text-align: center; font-size: 14px; font-style: italic; margin-top: 8px; color: #555;">
+      Note: The reason why the histogram appears spiky for the equalized image is because of the quantization effects i.e. when we apply the transformation, multiple input intensity values often map to the same output value due to rounding. 
+    </p>
+</div>
 It is the simplest and most basic form of equalization. This technique is applied to the entire image uniformly irrespective of the difference in light intensities at different locations. All other methods are a modification or improvement of this core idea.
+
 ### The Mathematical Journey
 
 #### Step 1: Understanding What We Have
@@ -98,6 +141,7 @@ Since we want $p_s(s) = 1$:
 $$1 = p_r(r) \cdot \left|\frac{dr}{ds}\right|$$
 
 Rearranging: $$\left|\frac{ds}{dr}\right| = p_r(r)$$
+
 #### Step 4: The Beautiful Solution
 
 Integrating both sides:
@@ -105,7 +149,8 @@ Integrating both sides:
 $$\int_0^s ds = \int_0^r p_r(w)dw$$
 
 **Left side**: We integrate $ds$ from $0$ to $s$ (the output variable) **Right side**: We integrate $p_r(w) dw$ from $0$ to $r$ (the input variable)
-##### Why These Limits Correspond
+
+#### Why These Limits Correspond
 
 The key insight is that when $r=0$ (darkest input), we want $s=0$ (darkest output). When input reaches value $r$, output reaches value $s$.
 
@@ -150,11 +195,13 @@ where $L$ is the number of intensity levels (256 for 8-bit images).
 
 - Simple to implement
 - Effective for images with uniform lighting
+
 ### Disadvantages
 
 - Not suitable for images with varying local characteristics
 - May wash out details in bright or dark areas
 - Can cause over enhancement in some regions
+
 ### Choose Global HE when
 
 - Speed is critical
@@ -165,6 +212,7 @@ where $L$ is the number of intensity levels (256 for 8-bit images).
 ## Local Histogram Equalization
 
 Applies histogram equalization to small neighborhoods around each pixel. It tackles the limitation of GHE i.e. being unable to adapt to local contrast and preserves local details.
+
 ### Process
 
 1. Define a window size (e.g., 5×5, 7×7)
@@ -179,11 +227,13 @@ Applies histogram equalization to small neighborhoods around each pixel. It tack
 
 - Smaller windows = more local adaptation, more artifacts (imperfections or distortions)
 - Larger windows = less local adaptation, smoother results
+
 ### Advantages
 
 - Preserves local details better
 - Adapts to local image characteristics 
 - Better handling of varying illumination
+
 ### Disadvantages
 
 - Computationally expensive
@@ -199,6 +249,7 @@ Similar to local histogram equalization but with refinements to handle computati
 - Efficient computation using interpolation
 - Better boundary handling
 - Noise reduction mechanisms
+
 ### Key Process
 
 1. Divide image into non-overlapping tiles (e.g., 8×8 grid of rectangular regions)
@@ -245,6 +296,25 @@ The interpolation makes AHE much faster while maintaining most of the local adap
 
 CLAHE was developed to address the main limitations of AHE and by extension GHE - over-amplification of noise and artifacts, and over enhancement. 
 
+<div style="display: flex; gap: 20px; margin: 20px 0;">
+  <figure style="flex: 1; margin: 0;">
+    {{< figure src="images/side-lighting_0.png" alt="Before CLAHE" caption="Before CLAHE Histogram Equalization" width="100%" >}}
+  </figure>
+  <figure style="flex: 1; margin: 0;">
+    {{< figure src="images/clahe_lighting.png" alt="After CLAHE" caption="After CLAHE Histogram Equalization" width="100%" >}}
+  </figure>
+</div>
+
+<div style="display: flex; gap: 20px; margin: 20px 0 50px 0;">
+  <figure style="flex: 1; margin: 0; width: 300px; height: 150px;">
+    {{< figure src="images/original_hist.png" alt="Original image color histogram" width="100%" height="150px" >}}
+  </figure>
+  <figure style="flex: 1; margin: 0; width: 300px; height: 150px;">
+    {{< figure src="images/clahe_hist.png" alt="Color histogram after CLAHE" width="100%" height="150px" >}}
+  </figure>
+</div>
+
+
 ### Process
 
 1. Divide image into non-overlapping contextual regions (tiles)
@@ -254,7 +324,16 @@ CLAHE was developed to address the main limitations of AHE and by extension GHE 
 5. Apply histogram equalization to each tile
 6. Use bilinear interpolation to eliminate boundary artifacts and ensure smooth blending
 
-##### Example of Histogram Clipping
+### Example of Histogram Clipping
+
+**Before Clipping**
+```
+Histogram bins:
+Intensity:  50   100   150   200   250
+Count:      10   500   800    50    40
+                  ↑     ↑
+               These exceed clip limit (let's say = 300)
+```
 
 **Step 1: Clip the Histogram**
 
@@ -267,8 +346,8 @@ Count:      10   300   300    50    40
                   ↓     ↓
             Clipped  Clipped
 
-Excess pixels: 200 + 500 = 700 pixels total
-              (500-300) + (800-300)
+Excess pixels:(500-300) + (800-300) = 700 pixels total
+              
 ```
 
 **Step 2: Redistribute Excess Pixels**
