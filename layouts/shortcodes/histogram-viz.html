@@ -284,7 +284,6 @@
                 const gaussian = amplitude * Math.exp(-0.5 * Math.pow((x - mean) / std, 2));
                 distribution[i] = Math.max(5, Math.min(85, gaussian));
             }
-            console.log(distribution);
             return distribution;
         }
 
