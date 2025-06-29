@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="noindex, nofollow">
-<title>Deep Dive into Image Histogram Equalization | $Pranshu \sum ittal$</title>
+<title>Deep Dive into Image Histogram Equalization | PranshuxBlog - Knowledge Hub</title>
 <meta name="keywords" content="opencv, computer-vision, beginner, image-processing">
 <meta name="description" content="Learn all about histogram equalization and its variants in image processing to solve real-world problems in vision.">
 <meta name="author" content="Pranshu Mittal">
@@ -88,7 +88,7 @@
 <header class="header">
     <nav class="nav">
         <div class="logo">
-            <a href="http://localhost:1313/pranshux-blog/" accesskey="h" title="$Pranshu \sum ittal$ (Alt + H)">$Pranshu \sum ittal$</a>
+            <a href="http://localhost:1313/pranshux-blog/" accesskey="h" title="PranshuxBlog - Knowledge Hub (Alt + H)">PranshuxBlog - Knowledge Hub</a>
             <div class="logo-switches">
                 <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
                     <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
@@ -119,8 +119,8 @@
                 </a>
             </li>
             <li>
-                <a href="http://localhost:1313/pranshux-blog/posts/" title="Posts">
-                    <span>Posts</span>
+                <a href="http://localhost:1313/pranshux-blog/posts/" title="Tutorials">
+                    <span>Tutorials</span>
                 </a>
             </li>
             <li>
@@ -147,7 +147,7 @@
     <div class="post-description">
       Learn all about histogram equalization and its variants in image processing to solve real-world problems in vision.
     </div>
-    <div class="post-meta"><span title='2025-06-22 21:07:17 +0530 IST'>June 22, 2025</span>&nbsp;·&nbsp;12 min&nbsp;·&nbsp;2487 words&nbsp;·&nbsp;Pranshu Mittal
+    <div class="post-meta"><span title='2025-06-22 21:07:17 +0530 IST'>June 22, 2025</span>&nbsp;·&nbsp;12 min&nbsp;·&nbsp;2382 words&nbsp;·&nbsp;Pranshu Mittal
 
 </div>
   </header> <div class="toc">
@@ -176,9 +176,11 @@
                 <li>
                     <a href="#step-3-the-magic-transformation" aria-label="Step 3: The Magic Transformation">Step 3: The Magic Transformation</a></li>
                 <li>
-                    <a href="#step-4-the-beautiful-solution" aria-label="Step 4: The Beautiful Solution">Step 4: The Beautiful Solution</a></li>
+                    <a href="#step-4-the-beautiful-solution" aria-label="Step 4: The Beautiful Solution">Step 4: The Beautiful Solution</a><ul>
+                        
                 <li>
-                    <a href="#why-these-limits-correspond" aria-label="Why These Limits Correspond">Why These Limits Correspond</a></li>
+                    <a href="#why-these-limits-correspond" aria-label="Why These Limits Correspond">Why These Limits Correspond</a></li></ul>
+                </li>
                 <li>
                     <a href="#the-intuitive-magic" aria-label="The Intuitive Magic">The Intuitive Magic</a></li></ul>
                 </li>
@@ -227,9 +229,13 @@
                     <a href="#clahe-contrast-limited-adaptive-histogram-equalization" aria-label="CLAHE (Contrast Limited Adaptive Histogram Equalization)">CLAHE (Contrast Limited Adaptive Histogram Equalization)</a><ul>
                         
                 <li>
-                    <a href="#process-1" aria-label="Process">Process</a></li>
+                    <a href="#process-1" aria-label="Process">Process</a><ul>
+                        <ul>
+                        
                 <li>
-                    <a href="#example-of-histogram-clipping" aria-label="Example of Histogram Clipping">Example of Histogram Clipping</a></li>
+                    <a href="#example-of-histogram-clipping" aria-label="Example of Histogram Clipping">Example of Histogram Clipping</a></li></ul>
+                    </ul>
+                </li>
                 <li>
                     <a href="#why-this-works" aria-label="Why This Works">Why This Works</a></li>
                 <li>
@@ -281,21 +287,7 @@
     </details>
 </div>
 
-  <div class="post-content"><div style="display: flex; gap: 20px; margin: 20px 0;">
-  <figure style="flex: 1; margin: 0;">
-    <img src="images/side-lighting_0.png" alt="Original image">
-    <figcaption style="text-align: center;">Original</figcaption>
-  </figure>
-  <figure style="flex: 1; margin: 0;">
-    <img src="images/clahe_lighting.png" alt="After CLAHE">
-    <figcaption style="text-align: center;">After CLAHE</figcaption>
-  </figure>
-  <figure style="flex: 1; margin: 0;">
-    <img src="images/preview_image.png" alt="After GHE">
-    <figcaption style="text-align: center;">After GHE</figcaption>
-  </figure>
-</div>
-<p>As computer vision engineers, we&rsquo;ve all encountered that frustrating moment when our carefully trained model fails on real-world data that looks nothing like our pristine training set. A face detection system that works flawlessly in controlled lighting suddenly struggles with backlit portraits. An OCR pipeline that reads printed documents perfectly chokes on poorly scanned paperwork. A medical imaging classifier trained on high-contrast CT scans fails to generalize to images from different hospitals with varying acquisition protocols.</p>
+  <div class="post-content"><p>As computer vision engineers, we&rsquo;ve all encountered that frustrating moment when our carefully trained model fails on real-world data that looks nothing like our pristine training set. A face detection system that works flawlessly in controlled lighting suddenly struggles with backlit portraits. An OCR pipeline that reads printed documents perfectly chokes on poorly scanned paperwork. A medical imaging classifier trained on high-contrast CT scans fails to generalize to images from different hospitals with varying acquisition protocols.</p>
 <p>The culprit? <strong>Poor contrast and suboptimal intensity distribution.</strong></p>
 <h2 id="the-fundamental-problem">The Fundamental Problem<a hidden class="anchor" aria-hidden="true" href="#the-fundamental-problem">#</a></h2>
 <p>Digital images rarely utilize their full dynamic range effectively. Consider these common scenarios:</p>
@@ -543,11 +535,7 @@
             <button class="control-btn" onclick="simulateNormal()">Normal</button>
         </div>
     </div>
-    <div>
-        <p style="text-align: center; font-size: 14px; font-style: italic; margin-top: 8px; color: #555;">
-            Note: This visualization is to just build the intuition for the concept. In reality, the graphs are not this uniform for discrete digital images.
-          </p>
-    </div>
+
     <script>
         const numBars = 40;
 
@@ -692,48 +680,7 @@
 <li>High-contrast images have histograms spread across the full range</li>
 </ul>
 <h2 id="global-histogram-equalization">Global Histogram Equalization<a hidden class="anchor" aria-hidden="true" href="#global-histogram-equalization">#</a></h2>
-<div style="display: flex; gap: 20px; margin: 20px 0;">
-  <figure style="flex: 1; margin: 0;">
-    <figure>
-        <img loading="lazy" src="images/side-lighting_0.png"
-             alt="Without GHE" width="100%"/> <figcaption>
-                <p>Before Global Histogram Equalization</p>
-            </figcaption>
-    </figure>
-
-  </figure>
-  <figure style="flex: 1; margin: 0;">
-    <figure>
-        <img loading="lazy" src="images/preview_image.png"
-             alt="With GHE" width="100%"/> <figcaption>
-                <p>After Global Histogram Equalization</p>
-            </figcaption>
-    </figure>
-
-  </figure>
-</div>
-<div style="display: flex; gap: 20px; margin: 20px 0 50px 0;">
-  <figure style="flex: 1; margin: 0; width: 300px; height: 150px;">
-    <figure>
-        <img loading="lazy" src="images/original_hist.png"
-             alt="Original image color histogram" width="100%" height="150px"/> 
-    </figure>
-
-  </figure>
-  <figure style="flex: 1; margin: 0; width: 300px; height: 150px;">
-    <figure>
-        <img loading="lazy" src="images/ghe_hist.png"
-             alt="Color histogram after global histogram equalization" width="100%" height="150px"/> 
-    </figure>
-
-  </figure>
-</div>
-<div>  
-<p style="text-align: center; font-size: 14px; font-style: italic; margin-top: 8px; color: #555;">
-      Note: The reason why the histogram appears spiky for the equalized image is because of the quantization effects i.e. when we apply the transformation, multiple input intensity values often map to the same output value due to rounding. 
-    </p>
-</div>
-It is the simplest and most basic form of equalization. This technique is applied to the entire image uniformly irrespective of the difference in light intensities at different locations. All other methods are a modification or improvement of this core idea.
+<p>It is the simplest and most basic form of equalization. This technique is applied to the entire image uniformly irrespective of the difference in light intensities at different locations. All other methods are a modification or improvement of this core idea.</p>
 <h3 id="the-mathematical-journey">The Mathematical Journey<a hidden class="anchor" aria-hidden="true" href="#the-mathematical-journey">#</a></h3>
 <h4 id="step-1-understanding-what-we-have">Step 1: Understanding What We Have<a hidden class="anchor" aria-hidden="true" href="#step-1-understanding-what-we-have">#</a></h4>
 <p>Every grayscale image can be thought of as a collection of brightness values. We describe this with a <strong>probability density function</strong> $p_r(r)$, which tells us:</p>
@@ -770,7 +717,7 @@ This relationship comes from <strong>the fundamental transformation law of proba
 <p>Integrating both sides:</p>
 <p>$$\int_0^s ds = \int_0^r p_r(w)dw$$</p>
 <p><strong>Left side</strong>: We integrate $ds$ from $0$ to $s$ (the output variable) <strong>Right side</strong>: We integrate $p_r(w) dw$ from $0$ to $r$ (the input variable)</p>
-<h4 id="why-these-limits-correspond">Why These Limits Correspond<a hidden class="anchor" aria-hidden="true" href="#why-these-limits-correspond">#</a></h4>
+<h5 id="why-these-limits-correspond">Why These Limits Correspond<a hidden class="anchor" aria-hidden="true" href="#why-these-limits-correspond">#</a></h5>
 <p>The key insight is that when $r=0$ (darkest input), we want $s=0$ (darkest output). When input reaches value $r$, output reaches value $s$.</p>
 <p>So the limits correspond as:</p>
 <ul>
@@ -894,42 +841,6 @@ This relationship comes from <strong>the fundamental transformation law of proba
 </ul>
 <h2 id="clahe-contrast-limited-adaptive-histogram-equalization">CLAHE (Contrast Limited Adaptive Histogram Equalization)<a hidden class="anchor" aria-hidden="true" href="#clahe-contrast-limited-adaptive-histogram-equalization">#</a></h2>
 <p>CLAHE was developed to address the main limitations of AHE and by extension GHE - over-amplification of noise and artifacts, and over enhancement.</p>
-<div style="display: flex; gap: 20px; margin: 20px 0;">
-  <figure style="flex: 1; margin: 0;">
-    <figure>
-        <img loading="lazy" src="images/side-lighting_0.png"
-             alt="Before CLAHE" width="100%"/> <figcaption>
-                <p>Before CLAHE Histogram Equalization</p>
-            </figcaption>
-    </figure>
-
-  </figure>
-  <figure style="flex: 1; margin: 0;">
-    <figure>
-        <img loading="lazy" src="images/clahe_lighting.png"
-             alt="After CLAHE" width="100%"/> <figcaption>
-                <p>After CLAHE Histogram Equalization</p>
-            </figcaption>
-    </figure>
-
-  </figure>
-</div>
-<div style="display: flex; gap: 20px; margin: 20px 0 50px 0;">
-  <figure style="flex: 1; margin: 0; width: 300px; height: 150px;">
-    <figure>
-        <img loading="lazy" src="images/original_hist.png"
-             alt="Original image color histogram" width="100%" height="150px"/> 
-    </figure>
-
-  </figure>
-  <figure style="flex: 1; margin: 0; width: 300px; height: 150px;">
-    <figure>
-        <img loading="lazy" src="images/clahe_hist.png"
-             alt="Color histogram after CLAHE" width="100%" height="150px"/> 
-    </figure>
-
-  </figure>
-</div>
 <h3 id="process-1">Process<a hidden class="anchor" aria-hidden="true" href="#process-1">#</a></h3>
 <ol>
 <li>Divide image into non-overlapping contextual regions (tiles)</li>
@@ -939,14 +850,8 @@ This relationship comes from <strong>the fundamental transformation law of proba
 <li>Apply histogram equalization to each tile</li>
 <li>Use bilinear interpolation to eliminate boundary artifacts and ensure smooth blending</li>
 </ol>
-<h3 id="example-of-histogram-clipping">Example of Histogram Clipping<a hidden class="anchor" aria-hidden="true" href="#example-of-histogram-clipping">#</a></h3>
-<p><strong>Before Clipping</strong></p>
-<pre tabindex="0"><code>Histogram bins:
-Intensity:  50   100   150   200   250
-Count:      10   500   800    50    40
-                  ↑     ↑
-               These exceed clip limit (let&#39;s say = 300)
-</code></pre><p><strong>Step 1: Clip the Histogram</strong></p>
+<h5 id="example-of-histogram-clipping">Example of Histogram Clipping<a hidden class="anchor" aria-hidden="true" href="#example-of-histogram-clipping">#</a></h5>
+<p><strong>Step 1: Clip the Histogram</strong></p>
 <p>Set clip limit = 300. Any bin exceeding this gets &ldquo;clipped&rdquo;:</p>
 <pre tabindex="0"><code>After clipping:
 Intensity:  50   100   150   200   250
@@ -954,8 +859,8 @@ Count:      10   300   300    50    40
                   ↓     ↓
             Clipped  Clipped
 
-Excess pixels:(500-300) + (800-300) = 700 pixels total
-              
+Excess pixels: 200 + 500 = 700 pixels total
+              (500-300) + (800-300)
 </code></pre><p><strong>Step 2: Redistribute Excess Pixels</strong></p>
 <p>The 700 &ldquo;clipped&rdquo; pixels get <strong>evenly distributed</strong> across <strong>all</strong> histogram bins:</p>
 <pre tabindex="0"><code>Redistribution per bin = 700 ÷ 5 bins = 140 pixels per bin
@@ -1398,7 +1303,7 @@ Count:     150   440   440   190   180
     </main>
     
 <footer class="footer">
-        <span>&copy; 2025 <a href="http://localhost:1313/pranshux-blog/">$Pranshu \sum ittal$</a></span> · 
+        <span>&copy; 2025 <a href="http://localhost:1313/pranshux-blog/">PranshuxBlog - Knowledge Hub</a></span> · 
 
     <span>
         Powered by

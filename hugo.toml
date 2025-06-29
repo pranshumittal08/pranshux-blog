@@ -1,6 +1,6 @@
 baseURL = 'https://pranshumittal08.github.io/pranshux-blog'
 languageCode = 'en-us'
-title = '$Pranshu \sum ittal$'
+title = 'PranshuxBlog - Knowledge Hub'
 theme = 'PaperMod'
 
 # Enable syntax highlighting
@@ -28,7 +28,7 @@ pygmentsCodeFences = true
   
   [[params.socialIcons]]
     name = "linkedin"
-    url = "https://linkedin.com/in/pranshu-mittal08"
+    url = "https://linkedin.com/in/yourprofile"
 
 # Menu
 [[menu.main]]
@@ -39,7 +39,7 @@ pygmentsCodeFences = true
 
 [[menu.main]]
   identifier = "posts"
-  name = "Posts"
+  name = "Tutorials"
   url = "/posts/"
   weight = 20
 
